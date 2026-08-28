@@ -123,18 +123,17 @@ export function ScreenHeader({
 }
 
 export function AppTopBar({
-  name = 'Đặng Nguyễn Tiến',
+  name,
   subtitle = 'Cộng tác viên hoàn tiền',
-  showBell = true,
 }: {
-  readonly name?: string;
+  readonly name: string;
   readonly subtitle?: string;
-  readonly showBell?: boolean;
 }) {
+  const avatarLetter = name.trim().charAt(0).toUpperCase() || '?';
   return (
     <View style={styles.topBar}>
       <View style={styles.topAvatar}>
-        <Text style={styles.topAvatarText}>Đ</Text>
+        <Text style={styles.topAvatarText}>{avatarLetter}</Text>
       </View>
       <View style={styles.topText}>
         <Text style={styles.topName} numberOfLines={1}>
@@ -144,12 +143,6 @@ export function AppTopBar({
           {subtitle}
         </Text>
       </View>
-      {showBell && (
-        <View style={styles.statusPill}>
-          <View style={styles.statusDot} />
-          <Text style={styles.statusText}>Online</Text>
-        </View>
-      )}
     </View>
   );
 }
@@ -388,23 +381,6 @@ const styles = StyleSheet.create({
   topText: { flex: 1, gap: 1 },
   topName: { ...typography.body, color: colors.ink, fontWeight: '800' },
   topSubtitle: { ...typography.caption, color: colors.muted, fontSize: 10 },
-  statusPill: {
-    height: 24,
-    paddingHorizontal: spacing.xs,
-    borderRadius: radius.pill,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexDirection: 'row',
-    gap: 5,
-    backgroundColor: colors.cardMuted,
-  },
-  statusDot: {
-    width: 7,
-    height: 7,
-    borderRadius: 4,
-    backgroundColor: colors.success,
-  },
-  statusText: { ...typography.caption, color: colors.brandDark, fontSize: 9, fontWeight: '800' },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',

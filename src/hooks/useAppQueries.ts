@@ -5,12 +5,23 @@ import { setCurrentUser } from '@/lib/authStore';
 import type {
   AppUser,
   Campaign,
+  LinkHistoryItem,
   LinkResult,
+  OAuthConfig,
   Order,
   ReferralView,
   WalletSummary,
   WithdrawalRequest,
 } from '@/lib/types';
+
+export function useOAuthConfig() {
+  return useQuery({
+    queryKey: ['oauth-config'],
+    queryFn: () => api.get<OAuthConfig>('/oauth-config'),
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+}
 
 export function useMe() {
   return useQuery({
@@ -48,9 +59,20 @@ export function useReferral() {
 }
 
 export function useCreateLink() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: { platform: string; productUrl: string }) =>
       api.post<LinkResult>('/link', input),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['links'] });
+    },
+  });
+}
+
+export function useLinkHistory() {
+  return useQuery({
+    queryKey: ['links'],
+    queryFn: () => api.get<LinkHistoryItem[]>('/links?limit=20'),
   });
 }
 

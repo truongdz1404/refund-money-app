@@ -6,6 +6,7 @@ import { QueryState } from '@/components/QueryState';
 import { AppButton, AppIcon, type AppIconName, Card, IconBadge } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
 import { useMe, useWallet } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatVnd } from '@/lib/format';
 import { signOut, useAuth } from '@/lib/authStore';
 
@@ -41,6 +42,9 @@ export default function MeScreen() {
       { text: 'Đăng xuất', style: 'destructive', onPress: () => signOut() },
     ]);
   }
+
+  const displayName = getDisplayName(me.data);
+  const avatarLetter = displayName.trim().charAt(0).toUpperCase() || '?';
 
   const orderShortcuts: Shortcut[] = [
     { label: 'Chờ xác nhận', icon: 'time-outline', badge: `${wallet.data?.pendingOrders ?? 0}`, onPress: () => router.push('/orders') },
@@ -92,19 +96,18 @@ export default function MeScreen() {
               <Pressable style={styles.headerIconButton} onPress={() => router.push('/profile')}>
                 <AppIcon name="settings-outline" size={18} color={colors.ink} />
               </Pressable>
-              <Pressable style={styles.headerIconButton}>
-                <AppIcon name="notifications-outline" size={18} color={colors.ink} />
-              </Pressable>
             </View>
           </View>
 
           <View style={styles.profileRow}>
             <View style={styles.avatar}>
-              <Text style={styles.avatarText}>Đ</Text>
+              <Text style={styles.avatarText}>{avatarLetter}</Text>
             </View>
             <View style={styles.profileText}>
-              <Text style={styles.profileName}>Đặng Nguyễn Tiến</Text>
-              <Text style={styles.profilePhone}>{me.data?.phone ?? user?.phone ?? 'Cộng tác viên hoàn tiền'}</Text>
+              <Text style={styles.profileName}>{displayName}</Text>
+              <Text style={styles.profilePhone}>
+                {me.data?.phone ?? me.data?.email ?? user?.phone ?? 'Cộng tác viên hoàn tiền'}
+              </Text>
             </View>
             <View style={styles.memberBadge}>
               <AppIcon name="shield-checkmark-outline" size={13} color={colors.brandDark} />

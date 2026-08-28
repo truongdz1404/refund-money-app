@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QueryState } from '@/components/QueryState';
@@ -8,6 +8,7 @@ import { TextField } from '@/components/TextField';
 import { AppButton, AppIcon, AppTopBar, Card, IconBadge, Mascot } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
 import { useMe, useWallet, useWithdraw } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatVnd } from '@/lib/format';
 
 const STATUS_LABEL: Record<string, string> = {
@@ -58,7 +59,7 @@ export default function WalletScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppTopBar name="Đặng Nguyễn Tiến" />
+      <AppTopBar name={getDisplayName(me.data)} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.container}
@@ -107,10 +108,13 @@ export default function WalletScreen() {
                   <AppIcon name="card" size={18} color={colors.brand} />
                   <Text style={styles.methodText}>Ngân hàng</Text>
                 </View>
-                <View style={styles.methodOption}>
+                <Pressable
+                  style={styles.methodOption}
+                  onPress={() => Alert.alert('Sắp ra mắt', 'Nhận tiền qua Momo sẽ được hỗ trợ trong bản cập nhật sau.')}
+                >
                   <AppIcon name="wallet-outline" size={18} color={colors.textMuted} />
                   <Text style={styles.methodMuted}>Momo</Text>
-                </View>
+                </Pressable>
               </View>
             </View>
 

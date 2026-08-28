@@ -6,6 +6,7 @@ import { QueryState } from '@/components/QueryState';
 import { AppIcon, AppTopBar, Card, IconBadge, Mascot, ProgressBar, type AppIconName } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
 import { useCampaigns, useMe, useWallet } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatVnd } from '@/lib/format';
 
 const QUICK_ACTIONS = [
@@ -44,6 +45,8 @@ export default function HomeScreen() {
     `${wallet.data?.paidOrders ?? 0}`,
     `${campaigns.data?.length ?? 1}`,
   ];
+  const givenName = me.data?.fullName?.trim().split(/\s+/).pop();
+  const greeting = givenName ? `Chào ${givenName}!` : 'Chào bạn!';
 
   function refetchAll() {
     me.refetch();
@@ -53,7 +56,7 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppTopBar name="Đặng Nguyễn Tiến" />
+      <AppTopBar name={getDisplayName(me.data)} />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.container}
@@ -62,7 +65,7 @@ export default function HomeScreen() {
         <QueryState isLoading={isLoading} isError={isError} onRetry={refetchAll}>
           <Card style={styles.hero}>
             <View style={styles.heroText}>
-              <Text style={styles.heroTitle}>Chào Tiến!</Text>
+              <Text style={styles.heroTitle}>{greeting}</Text>
               <Text style={styles.heroSubtitle}>Sẵn sàng hoàn tiền cho đơn hàng mới</Text>
             </View>
             <Mascot size={58} />

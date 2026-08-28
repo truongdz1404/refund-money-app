@@ -5,38 +5,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { QueryState } from '@/components/QueryState';
 import { AppIcon, AppTopBar, Card, IconBadge, Mascot, Pill, ProgressBar } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
-import { useCampaigns } from '@/hooks/useAppQueries';
+import { useCampaigns, useMe } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatDate, formatVnd } from '@/lib/format';
 import type { Campaign } from '@/lib/types';
-
-const FALLBACK_CAMPAIGNS: Campaign[] = [
-  {
-    id: -1,
-    title: 'Sự kiện hoàn tiền tháng 8',
-    description: 'Hoàn thành đơn hàng qua link để mở khóa thưởng theo từng mốc.',
-    startsAt: '2026-08-01',
-    endsAt: '2026-08-31',
-    isActive: true,
-    tiers: [
-      { orders: 5, reward: 25000 },
-      { orders: 10, reward: 60000 },
-      { orders: 20, reward: 150000 },
-    ],
-    completedOrders: 6,
-    rewardsEarned: [
-      {
-        id: -1,
-        campaignId: -1,
-        userId: -1,
-        orderThreshold: 5,
-        rewardAmount: 25000,
-        payoutStatus: 'unpaid',
-        paidAt: null,
-        createdAt: '2026-08-20',
-      },
-    ],
-  },
-];
 
 const FILTERS = [
   { key: 'active', label: 'Đang diễn ra' },
@@ -47,17 +19,18 @@ const FILTERS = [
 type FilterKey = (typeof FILTERS)[number]['key'];
 
 export default function CampaignsScreen() {
+  const me = useMe();
   const campaigns = useCampaigns();
   const [filter, setFilter] = useState<FilterKey>('active');
   const data = useMemo(() => {
-    const source = campaigns.data && campaigns.data.length > 0 ? campaigns.data : FALLBACK_CAMPAIGNS;
+    const source = campaigns.data ?? [];
     if (filter === 'reward') return source.filter((item) => item.rewardsEarned.length > 0);
     return source;
   }, [campaigns.data, filter]);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppTopBar name="Đặng Nguyễn Tiến" />
+      <AppTopBar name={getDisplayName(me.data)} />
       <View style={styles.screen}>
         <View style={styles.header}>
           <View>
@@ -91,6 +64,19 @@ export default function CampaignsScreen() {
               contentContainerStyle={styles.list}
               refreshControl={<RefreshControl refreshing={campaigns.isFetching} onRefresh={() => campaigns.refetch()} />}
               renderItem={({ item }) => <CampaignCard campaign={item} />}
+              ListEmptyComponent={
+                <View style={styles.emptyState}>
+                  <Mascot size={56} />
+                  <Text style={styles.emptyTitle}>
+                    {filter === 'reward' ? 'Chưa có mốc thưởng nào' : 'Chưa có sự kiện đang diễn ra'}
+                  </Text>
+                  <Text style={styles.emptySubtitle}>
+                    {filter === 'reward'
+                      ? 'Hoàn thành thêm đơn hàng để mở khóa mốc thưởng đầu tiên.'
+                      : 'Quay lại sau khi có sự kiện hoàn tiền mới nhé.'}
+                  </Text>
+                </View>
+              }
             />
           </QueryState>
         )}
@@ -136,8 +122,8 @@ function CampaignCard({ campaign }: { readonly campaign: Campaign }) {
       </View>
 
       <View style={styles.dateRow}>
-        <MiniInfo icon="calendar-outline" label="Bắt đầu" value={formatDate(campaign.startsAt) || '01/08/2026'} />
-        <MiniInfo icon="flag-outline" label="Kết thúc" value={formatDate(campaign.endsAt) || '31/08/2026'} />
+        <MiniInfo icon="calendar-outline" label="Bắt đầu" value={formatDate(campaign.startsAt) || 'Chưa cập nhật'} />
+        <MiniInfo icon="flag-outline" label="Kết thúc" value={formatDate(campaign.endsAt) || 'Chưa cập nhật'} />
       </View>
 
       <View style={styles.progressTop}>
@@ -312,4 +298,7 @@ const styles = StyleSheet.create({
   ruleNumberText: { ...typography.caption, color: colors.textOnAccent, fontWeight: '900' },
   ruleTitle: { ...typography.body, color: colors.ink, fontWeight: '900' },
   ruleDesc: { ...typography.caption, color: colors.muted },
+  emptyState: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.xs, marginTop: spacing.xl },
+  emptyTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
+  emptySubtitle: { ...typography.caption, color: colors.muted, textAlign: 'center' },
 });

@@ -4,12 +4,14 @@ import { useState } from 'react';
 import { Alert, Pressable, ScrollView, StyleSheet, Text, View, type GestureResponderEvent } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { QueryState } from '@/components/QueryState';
 import { TextField } from '@/components/TextField';
 import { AppButton, AppIcon, AppTopBar, type AppIconName, Card, IconBadge, Mascot } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
-import { useCreateLink } from '@/hooks/useAppQueries';
+import { useCreateLink, useLinkHistory, useMe } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatPct, formatVnd } from '@/lib/format';
-import type { LinkResult } from '@/lib/types';
+import type { LinkHistoryItem, LinkResult } from '@/lib/types';
 
 type Platform = {
   key: string;
@@ -20,8 +22,6 @@ type Platform = {
   soft: string;
 };
 
-type HistoryItem = { id: string; url: string; result: LinkResult; platform: Platform; sample?: boolean };
-
 const PLATFORMS: Platform[] = [
   { key: 'shopee', label: 'Shopee', icon: 'bag-handle', enabled: true, color: '#EE4D2D', soft: '#FFEAE2' },
   { key: 'shopeefood', label: 'ShopeeFood', icon: 'fast-food', enabled: false, color: '#F05A28', soft: '#FFEFE8' },
@@ -29,23 +29,6 @@ const PLATFORMS: Platform[] = [
   { key: 'lazada', label: 'Lazada', icon: 'storefront', enabled: false, color: '#1D2AA8', soft: '#E7E9FB' },
   { key: 'tiki', label: 'Tiki', icon: 'bag-check', enabled: false, color: '#1677FF', soft: '#EAF1FF' },
   { key: 'cellphones', label: 'CellphoneS', icon: 'phone-portrait', enabled: false, color: '#D70018', soft: '#FFE7EA' },
-];
-
-const SAMPLE_HISTORY: HistoryItem[] = [
-  {
-    id: 'sample-1',
-    url: 'https://shopee.vn/san-pham-giam-gia',
-    platform: PLATFORMS[0],
-    sample: true,
-    result: { pid: null, estimate: { userAmount: 12000, userPct: 4.5 }, results: [{ shortLink: 'shp.ee/hoantien12' }] },
-  },
-  {
-    id: 'sample-2',
-    url: 'https://shopee.vn/deal-hot-hom-nay',
-    platform: PLATFORMS[0],
-    sample: true,
-    result: { pid: null, estimate: { userAmount: 8000, userPct: 3.2 }, results: [{ shortLink: 'shp.ee/dealblue8' }] },
-  },
 ];
 
 function getResultLink(result: LinkResult) {
@@ -86,10 +69,10 @@ async function copyCashbackLink(link?: string | null) {
 export default function LinkScreen() {
   const [platform, setPlatform] = useState('shopee');
   const [url, setUrl] = useState('');
-  const [history, setHistory] = useState<HistoryItem[]>([]);
+  const me = useMe();
   const createLink = useCreateLink();
-  const selectedPlatform = PLATFORMS.find((p) => p.key === platform) ?? PLATFORMS[0];
-  const displayHistory = history.length > 0 ? history : SAMPLE_HISTORY;
+  const history = useLinkHistory();
+  const displayHistory = history.data ?? [];
 
   function handleSelectPlatform(next: Platform) {
     if (!next.enabled) {
@@ -104,10 +87,7 @@ export default function LinkScreen() {
     createLink.mutate(
       { platform, productUrl: url.trim() },
       {
-        onSuccess: (result) => {
-          setHistory((prev) =>
-            [{ id: `${Date.now()}`, url: url.trim(), result, platform: selectedPlatform }, ...prev].slice(0, 8),
-          );
+        onSuccess: () => {
           setUrl('');
         },
         onError: (err) => {
@@ -119,7 +99,7 @@ export default function LinkScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppTopBar name="Đặng Nguyễn Tiến" />
+      <AppTopBar name={getDisplayName(me.data)} />
       <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.container}>
         <Card style={styles.hero}>
           <View style={styles.heroText}>
@@ -171,11 +151,21 @@ export default function LinkScreen() {
           <Text style={styles.sectionTitle}>Lịch sử tạo link</Text>
           <Text style={styles.countText}>{displayHistory.length} link</Text>
         </View>
-        <View style={styles.historyList}>
-          {displayHistory.map((item) => (
-            <HistoryRow key={item.id} item={item} />
-          ))}
-        </View>
+        <QueryState isLoading={history.isLoading && !history.data} isError={history.isError} onRetry={() => history.refetch()}>
+          {displayHistory.length === 0 ? (
+            <View style={styles.emptyState}>
+              <IconBadge name="link-outline" size={40} backgroundColor={colors.brandSoft} iconColor={colors.brand} iconSize={20} />
+              <Text style={styles.emptyTitle}>Chưa có link nào</Text>
+              <Text style={styles.emptySubtitle}>Dán link sản phẩm Shopee ở trên để tạo link hoàn tiền đầu tiên của bạn.</Text>
+            </View>
+          ) : (
+            <View style={styles.historyList}>
+              {displayHistory.map((item) => (
+                <HistoryRow key={item.id} item={item} />
+              ))}
+            </View>
+          )}
+        </QueryState>
       </ScrollView>
     </SafeAreaView>
   );
@@ -242,8 +232,8 @@ function SuccessResultCard({ result }: { readonly result: LinkResult }) {
   );
 }
 
-function HistoryRow({ item }: { readonly item: HistoryItem }) {
-  const shortLink = getResultLink(item.result) ?? item.url;
+function HistoryRow({ item }: { readonly item: LinkHistoryItem }) {
+  const shortLink = item.affiliateUrl ?? item.shopeeUrl ?? '';
 
   function handleCopy(event: GestureResponderEvent) {
     event.stopPropagation();
@@ -253,24 +243,15 @@ function HistoryRow({ item }: { readonly item: HistoryItem }) {
   return (
     <Pressable onPress={() => openCashbackLink(shortLink)} style={({ pressed }) => pressed && styles.pressed}>
       <Card style={styles.historyCard}>
-        <IconBadge
-          name={item.platform.icon}
-          size={32}
-          backgroundColor={item.platform.soft}
-          iconColor={item.platform.color}
-          iconSize={17}
-        />
+        <IconBadge name="bag-handle" size={32} backgroundColor="#FFEAE2" iconColor="#EE4D2D" iconSize={17} />
         <View style={styles.historyText}>
           <Text style={styles.historyUrl} numberOfLines={1}>
-            {item.url}
+            {item.shopeeUrl ?? shortLink}
           </Text>
           <Text style={styles.historySub} numberOfLines={1}>
             {shortLink}
           </Text>
         </View>
-        {item.result.estimate && (
-          <Text style={styles.historyAmount}>{formatVnd(item.result.estimate.userAmount)}</Text>
-        )}
         <Pressable onPress={handleCopy} style={styles.smallButton}>
           <AppIcon name="copy-outline" size={14} color={colors.brand} />
         </Pressable>
@@ -396,4 +377,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  emptyState: { alignItems: 'center', justifyContent: 'center', padding: spacing.lg, gap: spacing.xs },
+  emptyTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
+  emptySubtitle: { ...typography.caption, color: colors.muted, textAlign: 'center' },
 });

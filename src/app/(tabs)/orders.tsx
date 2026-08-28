@@ -5,7 +5,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { QueryState } from '@/components/QueryState';
 import { AppIcon, AppTopBar, Card, IconBadge } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
-import { useOrders } from '@/hooks/useAppQueries';
+import { useMe, useOrders } from '@/hooks/useAppQueries';
+import { getDisplayName } from '@/lib/displayName';
 import { formatDate, formatVnd, orderStatusLabel } from '@/lib/format';
 import type { Order } from '@/lib/types';
 
@@ -17,39 +18,6 @@ const FILTERS: { key: 'all' | 1 | 2 | 3 | 4; label: string }[] = [
   { key: 3, label: 'Đã huỷ' },
 ];
 
-const SAMPLE_ORDERS: Order[] = [
-  {
-    id: -1,
-    orderSn: '250828HT001',
-    userId: -1,
-    subId: null,
-    totalCommission: 5900,
-    userCommission: 5900,
-    operatorCommission: null,
-    displayOrderStatus: 2,
-    payoutStatus: 'unpaid',
-    paidAt: null,
-    purchaseTime: '2026-08-28',
-    createdAt: '2026-08-28',
-    updatedAt: '2026-08-28',
-  },
-  {
-    id: -2,
-    orderSn: '250828HT002',
-    userId: -1,
-    subId: null,
-    totalCommission: 3700,
-    userCommission: 3700,
-    operatorCommission: null,
-    displayOrderStatus: 1,
-    payoutStatus: 'unpaid',
-    paidAt: null,
-    purchaseTime: '2026-08-27',
-    createdAt: '2026-08-27',
-    updatedAt: '2026-08-27',
-  },
-];
-
 const STATUS_TONE: Record<number, { bg: string; fg: string }> = {
   1: { bg: '#FFF7D6', fg: '#9A6B00' },
   2: { bg: '#DCFCE7', fg: '#15803D' },
@@ -58,12 +26,13 @@ const STATUS_TONE: Record<number, { bg: string; fg: string }> = {
 };
 
 export default function OrdersScreen() {
+  const me = useMe();
   const orders = useOrders();
   const [filter, setFilter] = useState<'all' | 1 | 2 | 3 | 4>('all');
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    let data = orders.data && orders.data.length > 0 ? orders.data : SAMPLE_ORDERS;
+    let data = orders.data ?? [];
     if (filter !== 'all') data = data.filter((o) => o.displayOrderStatus === filter);
     if (query.trim()) {
       const q = query.trim().toLowerCase();
@@ -74,7 +43,7 @@ export default function OrdersScreen() {
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
-      <AppTopBar name="Đặng Nguyễn Tiến" />
+      <AppTopBar name={getDisplayName(me.data)} />
       <View style={styles.screen}>
         <View style={styles.header}>
           <Text style={styles.screenTitle}>Đơn hàng</Text>
@@ -118,6 +87,13 @@ export default function OrdersScreen() {
             contentContainerStyle={styles.list}
             refreshControl={<RefreshControl refreshing={orders.isFetching} onRefresh={() => orders.refetch()} />}
             renderItem={({ item }) => <OrderRow order={item} />}
+            ListEmptyComponent={
+              <View style={styles.emptyState}>
+                <IconBadge name="bag-handle" size={48} backgroundColor={colors.brandSoft} iconColor={colors.brand} iconSize={24} />
+                <Text style={styles.emptyTitle}>Chưa có đơn hàng nào</Text>
+                <Text style={styles.emptySubtitle}>Tạo link hoàn tiền và mua sắm để đơn hàng của bạn xuất hiện ở đây.</Text>
+              </View>
+            }
           />
         </QueryState>
       </View>
@@ -127,7 +103,7 @@ export default function OrdersScreen() {
 
 function OrderRow({ order }: { readonly order: Order }) {
   const tone = STATUS_TONE[order.displayOrderStatus ?? 0] ?? { bg: colors.cardMuted, fg: colors.muted };
-  const title = order.id < 0 ? 'Áo thun / sản phẩm Shopee nổi bật' : `Sản phẩm Shopee ${order.orderSn.slice(-5)}`;
+  const title = `Sản phẩm Shopee ${order.orderSn.slice(-5)}`;
 
   return (
     <Card style={styles.orderCard}>
@@ -212,4 +188,7 @@ const styles = StyleSheet.create({
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   cashbackLabel: { ...typography.caption, color: colors.muted, fontSize: 10 },
   orderAmount: { ...typography.body, color: colors.success, fontWeight: '900' },
+  emptyState: { alignItems: 'center', justifyContent: 'center', padding: spacing.xl, gap: spacing.xs, marginTop: spacing.xl },
+  emptyTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
+  emptySubtitle: { ...typography.caption, color: colors.muted, textAlign: 'center' },
 });

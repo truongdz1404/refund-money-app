@@ -2,6 +2,7 @@ import { Link, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
 
+import { SocialLoginButtons } from '@/components/SocialLoginButtons';
 import { TextField } from '@/components/TextField';
 import { AppButton } from '@/design/components';
 import { colors, spacing, typography } from '@/design/tokens';
@@ -77,6 +78,8 @@ export default function RegisterScreen() {
           {error && <Text style={styles.errorText}>{error}</Text>}
           <AppButton label="Đăng ký" onPress={onSubmit} loading={submitting} />
         </View>
+
+        <SocialLoginButtons />
 
         <View style={styles.footer}>
           <Text style={styles.footerText}>Đã có tài khoản?</Text>

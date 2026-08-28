@@ -1,8 +1,8 @@
 {
   "expo": {
-    "name": "HoanTienApp",
-    "slug": "hoantienapp",
-    "scheme": "hoantienapp",
+    "name": "Rewally",
+    "slug": "rewally",
+    "scheme": "rewally",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -10,10 +10,10 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "vn.hoantien.app"
+      "bundleIdentifier": "com.dreek.rewally"
     },
     "android": {
-      "package": "vn.hoantien.app",
+      "package": "com.dreek.rewally",
       "adaptiveIcon": {
         "backgroundColor": "#EAF1FF",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -38,7 +38,8 @@
         }
       ],
       "expo-image",
-      "expo-secure-store"
+      "expo-secure-store",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true

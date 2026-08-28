@@ -1,7 +1,7 @@
 export type AppUser = {
   id: number;
   zaloUserId: string;
-  phone: string;
+  phone: string | null;
   bankName: string | null;
   bankAccountNumber: string | null;
   bankAccountHolder: string | null;
@@ -10,6 +10,10 @@ export type AppUser = {
   commissionPct: number | null;
   referralCode: string | null;
   referredByUserId: number | null;
+  email: string | null;
+  fullName: string | null;
+  googleId: string | null;
+  facebookId: string | null;
 };
 
 export type AuthResponse = { token: string; user: AppUser };
@@ -107,4 +111,19 @@ export type ReferralView = {
   referralCode: string;
   stats: { totalInvited: number; qualified: number; totalReward: number };
   invited: ReferralInvitee[];
+};
+
+export type LinkHistoryItem = {
+  id: number;
+  userId: number;
+  itemId: string | null;
+  subId: string;
+  shopeeUrl: string | null;
+  affiliateUrl: string | null;
+  createdAt: string;
+};
+
+export type OAuthConfig = {
+  google: { enabled: true; clientId: string } | { enabled: false };
+  facebook: { enabled: true; appId: string } | { enabled: false };
 };
