@@ -1,0 +1,213 @@
+Starting project at D:\Work\Mobile_App\HoanTienApp
+Using src/app as the root directory for Expo Router.
+Starting Metro Bundler
+
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8090
+
+Logs for your project will appear below.
+λ Bundled 12177ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1530 modules)
+Web Bundled 12700ms node_modules\expo-router\entry.js (1450 modules)
+Web Bundled 4822ms node_modules\expo-router\entry.js (1493 modules)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 38ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 293ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 39ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 41ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 296ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 44ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 37ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 287ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 35ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 31ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 278ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 33ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 26ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 475ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 44ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 32ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 247ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 33ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 28ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 243ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 33ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 33ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 255ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 32ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 32ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 262ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 36ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+Web  WARN  An error occurred in the <LinkScreen> component.
+
+Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries.
+Web  ERROR  [TypeError: Cannot read properties of undefined (reading 'icon')] 
+
+Code: link.tsx
+[0m [90m 145 |[39m                 [33m<[39m[33mCard[39m key[33m=[39m{item[33m.[39mid} style[33m=[39m{styles[33m.[39mhistoryCard}[33m>[39m
+ [90m 146 |[39m                   [33m<[39m[33mIconBadge[39m
+[31m[1m>[22m[39m[90m 147 |[39m                     name[33m=[39m{item[33m.[39mplatform[33m.[39micon}
+ [90m     |[39m                                         [31m[1m^[22m[39m
+ [90m 148 |[39m                     size[33m=[39m{[35m36[39m}
+ [90m 149 |[39m                     backgroundColor[33m=[39m{item[33m.[39mplatform[33m.[39msoft}
+ [90m 150 |[39m                     iconColor[33m=[39m{item[33m.[39mplatform[33m.[39mcolor}[0m
+Call Stack
+  history.map$argument_0 (src\app\(tabs)\link.tsx:147:41)
+  LinkScreen (src\app\(tabs)\link.tsx:144:24) 
+
+Code: register.tsx
+[0m [90m  7 |[39m [36mimport[39m { colors[33m,[39m spacing[33m,[39m typography } [36mfrom[39m [32m'@/design/tokens'[39m[33m;[39m
+ [90m  8 |[39m [36mimport[39m { [33mApiError[39m[33m,[39m api } [36mfrom[39m [32m'@/lib/api'[39m[33m;[39m
+[31m[1m>[22m[39m[90m  9 |[39m [36mimport[39m { signIn } [36mfrom[39m [32m'@/lib/authStore'[39m[33m;[39m
+ [90m    |[39m [31m[1m^[22m[39m
+ [90m 10 |[39m [36mimport[39m type { [33mAuthResponse[39m } [36mfrom[39m [32m'@/lib/types'[39m[33m;[39m
+ [90m 11 |[39m
+ [90m 12 |[39m [36mexport[39m [36mdefault[39m [36mfunction[39m [33mRegisterScreen[39m() {[0m
+Call Stack
+  <global> (src\app\(auth)\register.tsx:9)
+  WalletScreen (src\app\(tabs)\wallet.tsx:10:16)
+λ Bundled 7860ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 10168ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 52ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 46ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 1953ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 39ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 38ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 2032ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 44ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 26ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 1685ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 37ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 30ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 1750ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 33ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 34ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 1823ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 34ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 44ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 1830ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 49ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 292ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 2602ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 45ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 30ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 2025ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 40ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 33ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 2006ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 52ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+λ Bundled 32ms node_modules\expo\node_modules\@expo\cli\node_modules\@expo\router-server\node\render.js (1 module)
+Web Bundled 2054ms node_modules\expo-router\entry.js (1 module)
+Web Bundled 40ms node_modules\expo-router\entry.js (1 module)
+Web  INFO  %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+Web  LOG  Running application "main" with appParams:
+ {"hydrate": undefined, "rootTag": "#root"} 
+Development-level warnings: ON.
+Performance optimizations: OFF.
+Web  WARN  [Layout children]: No route named "orders" exists in nested children: ["campaigns", "index", "link", "more", "wallet"]
+Web  WARN  [Layout children]: No route named "orders" exists in nested children: ["campaigns", "index", "link", "more", "wallet"]
+Web  WARN  [Layout children]: Too many screens defined. Route "guide" is extraneous.
+Web  WARN  [Layout children]: Too many screens defined. Route "guide" is extraneous.
+Web  WARN  [Layout children]: No route named "campaigns" exists in nested children: ["index", "link", "more", "orders", "wallet"]
+Web  WARN  [Layout children]: No route named "campaigns" exists in nested children: ["index", "link", "more", "orders", "wallet"]
+Web  WARN  [Layout children]: Too many screens defined. Route "more" is extraneous.
+Web  WARN  [Layout children]: Too many screens defined. Route "more" is extraneous.
