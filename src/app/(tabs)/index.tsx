@@ -3,19 +3,24 @@ import { Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'r
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QueryState } from '@/components/QueryState';
-import { AppButton, AppIcon, AppTopBar, Card, IconBadge, Mascot, ProgressBar } from '@/design/components';
+import { AppIcon, AppTopBar, Card, IconBadge, Mascot, ProgressBar, type AppIconName } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
 import { useCampaigns, useMe, useWallet } from '@/hooks/useAppQueries';
 import { formatVnd } from '@/lib/format';
 
-const STATS = [
-  { label: 'Tổng đơn hàng', value: '156.076đ', icon: 'sparkles', tone: '#FFF7D6', fg: '#D99A00' },
-  { label: 'Chờ xử lý', value: '491.355đ', icon: 'hourglass', tone: '#FFF2DA', fg: '#E18B00' },
-  { label: 'Đang rút', value: '0đ', icon: 'cash', tone: '#EAF1FF', fg: colors.brand },
-  { label: 'Đã hoàn tiền', value: '238.678đ', icon: 'card', tone: '#FFECEC', fg: colors.danger },
-  { label: 'Ví đang hoạt động', value: '25', icon: 'wallet', tone: '#F0EAFF', fg: '#7E5CE8' },
-  { label: 'Sự kiện', value: '1', icon: 'gift', tone: '#E9FBEF', fg: colors.success },
-] as const;
+const QUICK_ACTIONS = [
+  { title: 'Copy link mới', subtitle: 'Dán link Shopee', icon: 'link-outline' as AppIconName, tone: '#FFEFE8', fg: colors.danger, href: '/link' as const },
+  { title: 'Cashback', subtitle: 'Nhận tiền', icon: 'cash-outline' as AppIconName, tone: colors.brandSoft, fg: colors.brand, href: '/wallet' as const },
+];
+
+const STAT_META = [
+  { label: 'Tổng tiền hoàn', icon: 'sparkles-outline' as AppIconName, tone: '#FFF7D6', fg: '#D99A00' },
+  { label: 'Chờ xử lý', icon: 'hourglass-outline' as AppIconName, tone: '#FFF2DA', fg: '#E18B00' },
+  { label: 'Chưa thanh toán', icon: 'card-outline' as AppIconName, tone: '#FFECEC', fg: colors.danger },
+  { label: 'Ví khả dụng', icon: 'wallet-outline' as AppIconName, tone: colors.brandSoft, fg: colors.brand },
+  { label: 'Đơn đã nhận', icon: 'checkmark-done-outline' as AppIconName, tone: '#E9FBEF', fg: colors.success },
+  { label: 'Sự kiện', icon: 'gift-outline' as AppIconName, tone: '#F0EAFF', fg: '#7E5CE8' },
+];
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -26,19 +31,25 @@ export default function HomeScreen() {
   const isLoading = me.isLoading || wallet.isLoading;
   const isError = me.isError || wallet.isError;
   const refreshing = me.isFetching || wallet.isFetching || campaigns.isFetching;
+  const activeCampaign = campaigns.data?.find((c) => c.isActive) ?? campaigns.data?.[0];
+  const nextTier = activeCampaign
+    ? [...activeCampaign.tiers].sort((a, b) => a.orders - b.orders).find((t) => t.orders > activeCampaign.completedOrders)
+    : undefined;
+  const progress = activeCampaign && nextTier ? activeCampaign.completedOrders / nextTier.orders : 0.35;
+  const statValues = [
+    formatVnd(wallet.data?.paidAmount),
+    formatVnd(wallet.data?.pendingAmount),
+    formatVnd(wallet.data?.unpaidAmount),
+    formatVnd(wallet.data?.availableAmount),
+    `${wallet.data?.paidOrders ?? 0}`,
+    `${campaigns.data?.length ?? 1}`,
+  ];
 
   function refetchAll() {
     me.refetch();
     wallet.refetch();
     campaigns.refetch();
   }
-
-  const activeCampaign = campaigns.data?.find((c) => c.isActive) ?? campaigns.data?.[0];
-  const nextTier = activeCampaign
-    ? [...activeCampaign.tiers].sort((a, b) => a.orders - b.orders).find((t) => t.orders > activeCampaign.completedOrders)
-    : undefined;
-  const progress = activeCampaign && nextTier ? activeCampaign.completedOrders / nextTier.orders : 1;
-  const displayName = me.data?.phone ? `Chào ${me.data.phone.slice(-4)}!` : 'Chào Tiến!';
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -49,91 +60,68 @@ export default function HomeScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={refetchAll} />}
       >
         <QueryState isLoading={isLoading} isError={isError} onRetry={refetchAll}>
-          <View style={styles.hero}>
+          <Card style={styles.hero}>
             <View style={styles.heroText}>
-              <Text style={styles.heroTitle}>{displayName}</Text>
-              <Text style={styles.heroSubtitle}>Sẵn sàng nhận tiền hoàn từ mỗi đơn hàng</Text>
+              <Text style={styles.heroTitle}>Chào Tiến!</Text>
+              <Text style={styles.heroSubtitle}>Sẵn sàng hoàn tiền cho đơn hàng mới</Text>
             </View>
-            <Mascot size={62} />
-          </View>
-
-          <View style={styles.actionRow}>
-            <MiniAction
-              title="Copy link mới"
-              subtitle="Dán link Shopee"
-              icon="link"
-              onPress={() => router.push('/link')}
-            />
-            <MiniAction
-              title="Cashback"
-              subtitle={formatVnd(wallet.data?.availableAmount)}
-              icon="wallet"
-              onPress={() => router.push('/wallet')}
-            />
-          </View>
-
-          <Card style={styles.statsCard}>
-            <View style={styles.statsGrid}>
-              {STATS.map((item, index) => {
-                const liveValue =
-                  index === 0
-                    ? formatVnd(wallet.data?.paidAmount)
-                    : index === 1
-                      ? formatVnd(wallet.data?.pendingAmount)
-                      : index === 2
-                        ? formatVnd(wallet.data?.unpaidAmount)
-                        : item.value;
-                return (
-                  <View key={item.label} style={styles.statItem}>
-                    <IconBadge
-                      name={item.icon}
-                      size={28}
-                      backgroundColor={item.tone}
-                      iconColor={item.fg}
-                      iconSize={15}
-                    />
-                    <Text style={styles.statLabel}>{item.label}</Text>
-                    <Text style={[styles.statValue, { color: item.fg }]}>{liveValue}</Text>
-                  </View>
-                );
-              })}
-            </View>
+            <Mascot size={58} />
           </Card>
 
-          <Card style={styles.walletStrip}>
-            <View>
-              <Text style={styles.stripLabel}>Tiền đã có sẵn</Text>
-              <Text style={styles.stripHint}>Đã chuyển vào ví</Text>
+          <View style={styles.actionRow}>
+            {QUICK_ACTIONS.map((item) => (
+              <Pressable key={item.title} style={styles.actionPress} onPress={() => router.push(item.href)}>
+                <Card style={styles.actionCard}>
+                  <IconBadge name={item.icon} size={30} backgroundColor={item.tone} iconColor={item.fg} iconSize={16} />
+                  <View style={styles.actionText}>
+                    <Text style={styles.actionTitle}>{item.title}</Text>
+                    <Text style={styles.actionSubtitle}>{item.subtitle}</Text>
+                  </View>
+                </Card>
+              </Pressable>
+            ))}
+          </View>
+
+          <View style={styles.statsGrid}>
+            {STAT_META.map((item, index) => (
+              <Card key={item.label} style={styles.statCard}>
+                <IconBadge name={item.icon} size={28} backgroundColor={item.tone} iconColor={item.fg} iconSize={15} />
+                <Text style={styles.statLabel}>{item.label}</Text>
+                <Text style={[styles.statValue, { color: item.fg }]}>{statValues[index]}</Text>
+              </Card>
+            ))}
+          </View>
+
+          <Card style={styles.walletCard}>
+            <View style={styles.walletLeft}>
+              <View style={styles.walletIcon}>
+                <AppIcon name="wallet" size={17} color={colors.brand} />
+              </View>
+              <View>
+                <Text style={styles.walletTitle}>Tiền đã có sẵn</Text>
+                <Text style={styles.walletSub}>Có thể yêu cầu thanh toán</Text>
+              </View>
             </View>
-            <Text style={styles.stripAmount}>{formatVnd(wallet.data?.availableAmount)}</Text>
+            <Text style={styles.walletAmount}>{formatVnd(wallet.data?.availableAmount)}</Text>
           </Card>
 
           <Card style={styles.campaignCard}>
-            <View style={styles.campaignHeader}>
+            <View style={styles.campaignTop}>
               <View style={styles.campaignIcon}>
-                <AppIcon name="gift" size={18} color={colors.brand} />
+                <AppIcon name="gift-outline" size={17} color={colors.brand} />
               </View>
               <View style={styles.campaignText}>
                 <Text style={styles.campaignTitle}>{activeCampaign?.title ?? 'Sự kiện tháng 8'}</Text>
-                <Text style={styles.campaignSubtitle}>Mua sắm đủ đơn, cộng thưởng ngay</Text>
+                <Text style={styles.campaignSub}>Sự kiện đang diễn ra</Text>
               </View>
               <Text style={styles.campaignPct}>{Math.round(progress * 100)}%</Text>
             </View>
-            <ProgressBar progress={progress} height={7} fillColor={colors.success} />
+            <ProgressBar progress={progress} height={6} fillColor={colors.success} />
             <Text style={styles.progressHint}>
               {nextTier
-                ? `Còn ${Math.max(nextTier.orders - (activeCampaign?.completedOrders ?? 0), 0)} đơn nữa để nhận ${formatVnd(nextTier.reward)}`
-                : 'Bạn đã hoàn thành mốc hiện tại'}
+                ? `Còn ${Math.max(nextTier.orders - (activeCampaign?.completedOrders ?? 0), 0)} đơn để nhận ${formatVnd(nextTier.reward)}`
+                : 'Tạo thêm đơn để mở khóa thưởng sự kiện'}
             </Text>
-          </Card>
-
-          <Card style={styles.readyCard}>
-            <IconBadge name="checkmark-done" size={34} backgroundColor="#E9FBEF" iconColor={colors.success} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.readyTitle}>Sẵn sàng nhận tiền</Text>
-              <Text style={styles.readyText}>Tạo link mới để theo dõi hoàn tiền tự động.</Text>
-            </View>
-            <AppButton label="Tạo link" variant="secondary" onPress={() => router.push('/link')} />
           </Card>
         </QueryState>
       </ScrollView>
@@ -141,91 +129,57 @@ export default function HomeScreen() {
   );
 }
 
-function MiniAction({
-  title,
-  subtitle,
-  icon,
-  onPress,
-}: {
-  readonly title: string;
-  readonly subtitle: string;
-  readonly icon: 'link' | 'wallet';
-  readonly onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} style={styles.miniActionPress}>
-      <Card style={styles.miniAction}>
-      <IconBadge
-        name={icon === 'link' ? 'bag-add' : 'cash'}
-        size={34}
-        backgroundColor={icon === 'link' ? '#FFEFE8' : colors.brandSoft}
-        iconColor={icon === 'link' ? colors.danger : colors.brand}
-      />
-      <View style={styles.actionText}>
-        <Text style={styles.actionTitle}>{title}</Text>
-        <Text style={styles.actionSubtitle}>{subtitle}</Text>
-      </View>
-      <AppIcon name="chevron-forward" size={15} color={colors.textMuted} />
-      </Card>
-    </Pressable>
-  );
-}
-
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.canvas },
-  container: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.sm },
+  container: { padding: spacing.sm, paddingBottom: spacing.xxl, gap: spacing.xs },
   hero: {
-    minHeight: 100,
-    borderRadius: radius.lg,
+    minHeight: 92,
     backgroundColor: colors.brandSoft,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: spacing.md,
-    overflow: 'hidden',
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
   },
   heroText: { flex: 1, gap: 3 },
   heroTitle: { ...typography.title, color: colors.ink },
   heroSubtitle: { ...typography.caption, color: colors.muted },
-  actionRow: { flexDirection: 'row', gap: spacing.sm },
-  miniActionPress: { flex: 1 },
-  miniAction: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.xs, minHeight: 68 },
-  actionText: { flex: 1, gap: 2 },
-  actionTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
-  actionSubtitle: { ...typography.caption, color: colors.muted, fontSize: 10 },
-  statsCard: { padding: 0, overflow: 'hidden' },
-  statsGrid: { flexDirection: 'row', flexWrap: 'wrap' },
-  statItem: {
-    width: '50%',
-    minHeight: 82,
-    padding: spacing.sm,
-    gap: 3,
-    borderRightWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.hairline,
+  actionRow: { flexDirection: 'row', gap: spacing.xs },
+  actionPress: { flex: 1 },
+  actionCard: { minHeight: 58, flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  actionText: { flex: 1, gap: 1 },
+  actionTitle: { ...typography.caption, color: colors.ink, fontWeight: '900' },
+  actionSubtitle: { ...typography.caption, color: colors.muted, fontSize: 9 },
+  statsGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs },
+  statCard: { width: '48.8%', minHeight: 72, gap: 3 },
+  statLabel: { ...typography.caption, color: colors.muted, fontSize: 10 },
+  statValue: { ...typography.body, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  walletCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  walletLeft: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  walletIcon: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
+    backgroundColor: colors.brandSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  statLabel: { ...typography.caption, color: colors.muted },
-  statValue: { ...typography.section, fontVariant: ['tabular-nums'], fontWeight: '800' },
-  walletStrip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  stripLabel: { ...typography.section, color: colors.ink },
-  stripHint: { ...typography.caption, color: colors.muted },
-  stripAmount: { ...typography.section, color: colors.success },
+  walletTitle: { ...typography.body, color: colors.ink, fontWeight: '900' },
+  walletSub: { ...typography.caption, color: colors.muted, fontSize: 10 },
+  walletAmount: { ...typography.body, color: colors.success, fontWeight: '900' },
   campaignCard: { gap: spacing.xs },
-  campaignHeader: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  campaignTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   campaignIcon: {
-    width: 34,
-    height: 34,
-    borderRadius: radius.md,
+    width: 32,
+    height: 32,
+    borderRadius: radius.sm,
     backgroundColor: colors.brandSoft,
     alignItems: 'center',
     justifyContent: 'center',
   },
   campaignText: { flex: 1, gap: 1 },
-  campaignTitle: { ...typography.section, color: colors.ink },
-  campaignSubtitle: { ...typography.caption, color: colors.muted },
-  campaignPct: { ...typography.caption, color: colors.success, fontWeight: '800' },
-  progressHint: { ...typography.caption, color: colors.muted },
-  readyCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  readyTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
-  readyText: { ...typography.caption, color: colors.muted },
+  campaignTitle: { ...typography.body, color: colors.ink, fontWeight: '900' },
+  campaignSub: { ...typography.caption, color: colors.muted, fontSize: 10 },
+  campaignPct: { ...typography.caption, color: colors.success, fontWeight: '900' },
+  progressHint: { ...typography.caption, color: colors.muted, fontSize: 10 },
 });

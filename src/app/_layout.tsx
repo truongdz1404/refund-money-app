@@ -38,7 +38,7 @@ export default function RootLayout() {
             <Stack.Screen name="(auth)" />
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="referral" options={{ headerShown: true, title: 'Giới thiệu bạn bè' }} />
-            <Stack.Screen name="profile" options={{ headerShown: true, title: 'Hồ sơ' }} />
+            <Stack.Screen name="profile" options={{ headerShown: false, title: 'Hồ sơ' }} />
             <Stack.Screen name="guide" options={{ headerShown: false, title: 'Hướng dẫn' }} />
           </Stack>
         </QueryClientProvider>

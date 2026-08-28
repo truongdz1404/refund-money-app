@@ -1,12 +1,15 @@
+import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet } from 'react-native';
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { TextField } from '@/components/TextField';
-import { AppButton, Card, SectionHeader } from '@/design/components';
-import { spacing } from '@/design/tokens';
+import { AppButton, AppIcon, Card } from '@/design/components';
+import { colors, spacing, typography } from '@/design/tokens';
 import { useChangePassword, useMe, useUpdateProfile } from '@/hooks/useAppQueries';
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const me = useMe();
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
@@ -60,45 +63,93 @@ export default function ProfileScreen() {
   }
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <SectionHeader title="Thông tin cá nhân" />
-        <Card style={styles.card}>
-          <TextField label="Số điện thoại" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
-          <TextField label="Tên ngân hàng" value={bankName} onChangeText={setBankName} placeholder="VD: Vietcombank" />
-          <TextField
-            label="Số tài khoản"
-            value={bankAccountNumber}
-            onChangeText={setBankAccountNumber}
-            keyboardType="number-pad"
-          />
-          <TextField label="Chủ tài khoản" value={bankAccountHolder} onChangeText={setBankAccountHolder} autoCapitalize="characters" />
-          <AppButton label="Lưu thay đổi" onPress={handleSaveProfile} loading={updateProfile.isPending} />
-        </Card>
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <View style={styles.header}>
+        <Text onPress={() => router.back()} style={styles.backButton}>
+          <AppIcon name="arrow-back" size={22} color={colors.ink} />
+        </Text>
+        <Text style={styles.headerTitle}>Hồ sơ</Text>
+        <View style={styles.headerSpacer} />
+      </View>
 
-        <SectionHeader title="Đổi mật khẩu" />
-        <Card style={styles.card}>
-          <TextField
-            label="Mật khẩu mới"
-            value={newPassword}
-            onChangeText={setNewPassword}
-            secureTextEntry
-            placeholder="Ít nhất 6 ký tự"
-          />
-          <TextField label="Xác nhận mật khẩu" value={confirmPassword} onChangeText={setConfirmPassword} secureTextEntry />
-          <AppButton
-            label="Đổi mật khẩu"
-            variant="secondary"
-            onPress={handleChangePassword}
-            loading={changePassword.isPending}
-          />
-        </Card>
-      </ScrollView>
-    </KeyboardAvoidingView>
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.keyboard}>
+        <ScrollView contentInsetAdjustmentBehavior="automatic" contentContainerStyle={styles.container}>
+          <Text style={styles.sectionTitle}>Thông tin cá nhân</Text>
+          <Card style={styles.card}>
+            <TextField label="Số điện thoại" value={phone} onChangeText={setPhone} keyboardType="phone-pad" />
+            <TextField label="Tên ngân hàng" value={bankName} onChangeText={setBankName} placeholder="VD: Vietcombank" />
+            <TextField
+              label="Số tài khoản"
+              value={bankAccountNumber}
+              onChangeText={setBankAccountNumber}
+              keyboardType="number-pad"
+            />
+            <TextField
+              label="Chủ tài khoản"
+              value={bankAccountHolder}
+              onChangeText={setBankAccountHolder}
+              autoCapitalize="characters"
+            />
+            <View style={styles.buttonRow}>
+              <AppButton
+                label="Lưu thay đổi"
+                onPress={handleSaveProfile}
+                loading={updateProfile.isPending}
+                style={styles.primaryButton}
+              />
+            </View>
+          </Card>
+
+          <Text style={styles.sectionTitle}>Đổi mật khẩu</Text>
+          <Card style={styles.card}>
+            <TextField
+              label="Mật khẩu mới"
+              value={newPassword}
+              onChangeText={setNewPassword}
+              secureTextEntry
+              placeholder="Ít nhất 6 ký tự"
+            />
+            <TextField
+              label="Xác nhận mật khẩu"
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+              secureTextEntry
+            />
+            <View style={styles.buttonRow}>
+              <AppButton
+                label="Đổi mật khẩu"
+                variant="secondary"
+                onPress={handleChangePassword}
+                loading={changePassword.isPending}
+                style={styles.secondaryButton}
+              />
+            </View>
+          </Card>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flexGrow: 1, padding: spacing.lg, gap: spacing.md },
-  card: { gap: spacing.md, marginBottom: spacing.lg },
+  safe: { flex: 1, backgroundColor: colors.canvas },
+  keyboard: { flex: 1 },
+  header: {
+    height: 56,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEF2FA',
+    backgroundColor: colors.card,
+  },
+  backButton: { width: 42, color: colors.ink },
+  headerTitle: { ...typography.title, color: colors.ink, fontSize: 18, flex: 1 },
+  headerSpacer: { width: 42 },
+  container: { flexGrow: 1, padding: spacing.lg, gap: spacing.lg },
+  sectionTitle: { ...typography.section, color: colors.ink, fontWeight: '900' },
+  card: { gap: spacing.md, padding: spacing.md },
+  buttonRow: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing.xs },
+  primaryButton: { minWidth: 132 },
+  secondaryButton: { minWidth: 138 },
 });

@@ -17,7 +17,7 @@ export default function TabsLayout() {
         headerShown: false,
         tabBarActiveTintColor: colors.brand,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: { fontSize: 9, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 10, fontWeight: '700' },
         tabBarIconStyle: { marginTop: 2 },
         tabBarStyle: {
           height: 58,
@@ -38,6 +38,7 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="wallet"
         options={{
+          href: null,
           title: 'Thanh toán',
           tabBarIcon: ({ color, size }) => <Ionicons name="cash-outline" size={size - 2} color={color} />,
         }}
@@ -66,8 +67,8 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="more"
         options={{
-          title: 'Thêm',
-          tabBarIcon: ({ color, size }) => <Ionicons name="menu-outline" size={size - 2} color={color} />,
+          title: 'Tôi',
+          tabBarIcon: ({ color, size }) => <Ionicons name="person-outline" size={size - 2} color={color} />,
         }}
       />
     </Tabs>

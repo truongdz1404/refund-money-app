@@ -1,9 +1,7 @@
-import { Button as ExpoButton, Host, type UniversalStyle } from '@expo/ui';
 import { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import {
   ActivityIndicator,
-  Image,
   Pressable,
   StyleSheet,
   Text,
@@ -14,7 +12,7 @@ import {
 } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { colors, radius, shadows, spacing, typography } from '@/design/tokens';
+import { colors, radius, spacing, typography } from '@/design/tokens';
 
 export type AppIconName = ComponentProps<typeof Ionicons>['name'];
 
@@ -40,49 +38,6 @@ export function Card({
   return <View style={[styles.card, style]}>{children}</View>;
 }
 
-function NativeButton({
-  label,
-  onPress,
-  variant,
-  disabled,
-  style,
-}: {
-  readonly label: string;
-  readonly onPress?: () => void;
-  readonly variant: 'primary' | 'secondary' | 'ghost' | 'danger';
-  readonly disabled?: boolean;
-  readonly style?: StyleProp<ViewStyle>;
-}) {
-  const flattened = StyleSheet.flatten([
-    styles.nativeButton,
-    variantStyles[variant],
-    disabled && styles.buttonDisabled,
-    style,
-  ]) as ViewStyle;
-  const nativeStyle: UniversalStyle = {
-    height: typeof flattened?.height === 'number' ? flattened.height : 46,
-    paddingHorizontal: typeof flattened?.paddingHorizontal === 'number' ? flattened.paddingHorizontal : spacing.lg,
-    paddingVertical: typeof flattened?.paddingVertical === 'number' ? flattened.paddingVertical : spacing.sm,
-    borderRadius: typeof flattened?.borderRadius === 'number' ? flattened.borderRadius : radius.md,
-    backgroundColor: flattened?.backgroundColor,
-    borderWidth: flattened?.borderWidth,
-    borderColor: flattened?.borderColor,
-    opacity: flattened?.opacity,
-  };
-
-  return (
-    <Host matchContents seedColor={variant === 'danger' ? colors.danger : colors.brand}>
-      <ExpoButton
-        label={label}
-        onPress={onPress}
-        disabled={disabled}
-        variant={variant === 'ghost' ? 'outlined' : variant === 'secondary' ? 'outlined' : 'filled'}
-        style={nativeStyle}
-      />
-    </Host>
-  );
-}
-
 export function AppButton({
   label,
   onPress,
@@ -102,18 +57,6 @@ export function AppButton({
   readonly style?: StyleProp<ViewStyle>;
 } & Omit<PressableProps, 'onPress' | 'style' | 'disabled'>) {
   const isDisabled = disabled || loading;
-  if (!icon && !loading) {
-    return (
-      <NativeButton
-        label={label}
-        onPress={onPress}
-        variant={variant}
-        disabled={isDisabled}
-        style={style}
-      />
-    );
-  }
-
   return (
     <Pressable
       onPress={onPress}
@@ -128,14 +71,14 @@ export function AppButton({
       {...pressableProps}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? colors.textOnAccent : colors.brand} />
+        <ActivityIndicator color={variant === 'primary' || variant === 'danger' ? colors.textOnAccent : colors.brand} />
       ) : (
         <>
           {icon && (
             <AppIcon
               name={icon}
-              size={18}
-              color={variant === 'primary' ? colors.textOnAccent : colors.brand}
+              size={17}
+              color={variant === 'primary' || variant === 'danger' ? colors.textOnAccent : colors.brand}
             />
           )}
           <Text style={[styles.buttonLabel, variantLabelStyles[variant]]}>{label}</Text>
@@ -150,7 +93,7 @@ export function Pill({
   tone = 'brand',
 }: {
   readonly label: string;
-  readonly tone?: 'brand' | 'success' | 'danger' | 'muted';
+  readonly tone?: 'brand' | 'success' | 'danger' | 'muted' | 'warning';
 }) {
   return (
     <View style={[styles.pill, pillToneStyles[tone]]}>
@@ -191,7 +134,7 @@ export function AppTopBar({
   return (
     <View style={styles.topBar}>
       <View style={styles.topAvatar}>
-        <Image source={require('../../assets/icon.png')} style={styles.topAvatarImage} />
+        <Text style={styles.topAvatarText}>Đ</Text>
       </View>
       <View style={styles.topText}>
         <Text style={styles.topName} numberOfLines={1}>
@@ -202,9 +145,9 @@ export function AppTopBar({
         </Text>
       </View>
       {showBell && (
-        <View style={styles.bellButton}>
-          <AppIcon name="notifications-outline" size={18} color={colors.ink} />
-          <View style={styles.bellDot} />
+        <View style={styles.statusPill}>
+          <View style={styles.statusDot} />
+          <Text style={styles.statusText}>Online</Text>
         </View>
       )}
     </View>
@@ -214,7 +157,12 @@ export function AppTopBar({
 export function Mascot({ size = 58 }: { readonly size?: number }) {
   return (
     <Svg width={size} height={size} viewBox="0 0 64 64">
-      <Path d="M32 5C20 15 11 29 11 41c0 10 8 18 21 18s21-8 21-18C53 29 44 15 32 5Z" fill="#F8FFDE" stroke={colors.success} strokeWidth="2.5" />
+      <Path
+        d="M32 5C20 15 11 29 11 41c0 10 8 18 21 18s21-8 21-18C53 29 44 15 32 5Z"
+        fill="#F8FFDE"
+        stroke={colors.success}
+        strokeWidth="2.5"
+      />
       <Path d="M32 15C24 23 18 33 18 41c0 7 5 12 14 12s14-5 14-12c0-8-6-18-14-26Z" fill={colors.brandSoft} />
       <Circle cx="24" cy="37" r="2.3" fill={colors.ink} />
       <Circle cx="40" cy="37" r="2.3" fill={colors.ink} />
@@ -280,7 +228,7 @@ export function IconBadge({
   readonly iconSize?: number;
 }) {
   return (
-    <View style={[styles.iconBadge, { width: size, height: size, borderRadius: size * 0.28, backgroundColor }]}>
+    <View style={[styles.iconBadge, { width: size, height: size, borderRadius: size * 0.24, backgroundColor }]}>
       <AppIcon name={name} size={iconSize ?? size * 0.5} color={iconColor} />
     </View>
   );
@@ -336,8 +284,16 @@ export function SectionHeader({
 
 const variantStyles: Record<string, ViewStyle> = {
   primary: { backgroundColor: colors.brand },
-  secondary: { backgroundColor: colors.brandSoft },
-  ghost: { backgroundColor: 'transparent', borderWidth: 1, borderColor: colors.hairline },
+  secondary: {
+    backgroundColor: colors.brandSoft,
+    borderColor: '#C9D8FF',
+    boxShadow: 'none',
+  },
+  ghost: {
+    backgroundColor: colors.card,
+    borderColor: '#DCE6FA',
+    boxShadow: 'none',
+  },
   danger: { backgroundColor: colors.danger },
 };
 
@@ -353,6 +309,7 @@ const pillToneStyles: Record<string, ViewStyle> = {
   success: { backgroundColor: '#DCFCE7' },
   danger: { backgroundColor: '#FEE2E2' },
   muted: { backgroundColor: colors.cardMuted },
+  warning: { backgroundColor: '#FFF7D6' },
 };
 
 const pillLabelToneStyles: Record<string, { color: string }> = {
@@ -360,43 +317,41 @@ const pillLabelToneStyles: Record<string, { color: string }> = {
   success: { color: '#15803D' },
   danger: { color: '#B91C1C' },
   muted: { color: colors.muted },
+  warning: { color: '#9A6B00' },
 };
 
 const styles = StyleSheet.create({
   card: {
     backgroundColor: colors.card,
-    borderRadius: radius.lg,
-    padding: spacing.md,
+    borderRadius: radius.sm,
+    padding: spacing.sm,
     borderWidth: 1,
-    borderColor: colors.hairline,
-    boxShadow: shadows.sm,
-  },
-  nativeButton: {
-    height: 46,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.sm,
-    borderRadius: radius.md,
+    borderColor: '#E7EDF8',
+    boxShadow: '0 1px 4px rgba(27, 35, 51, 0.06)',
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xs,
-    paddingVertical: spacing.sm,
+    paddingVertical: 0,
     paddingHorizontal: spacing.lg,
-    borderRadius: radius.md,
-    minHeight: 46,
+    borderRadius: 7,
+    minHeight: 42,
+    borderWidth: 1,
+    borderColor: 'transparent',
+    boxShadow: '0 3px 8px rgba(76, 126, 243, 0.18)',
   },
-  buttonPressed: { opacity: 0.85 },
-  buttonDisabled: { opacity: 0.5 },
-  buttonLabel: { ...typography.body, fontWeight: '700' },
+  buttonPressed: { opacity: 0.9, transform: [{ translateY: 1 }] },
+  buttonDisabled: { opacity: 0.55, boxShadow: 'none' },
+  buttonLabel: { ...typography.body, fontWeight: '900', letterSpacing: 0 },
   pill: {
     alignSelf: 'flex-start',
-    paddingVertical: spacing.xxs,
-    paddingHorizontal: spacing.sm,
+    paddingVertical: 3,
+    paddingHorizontal: spacing.xs,
     borderRadius: radius.pill,
   },
-  pillLabel: { ...typography.caption, fontWeight: '700' },
+  pillLabel: { ...typography.caption, fontSize: 9, fontWeight: '800' },
   screenHeader: {
     flexDirection: 'row',
     alignItems: 'flex-start',
@@ -412,69 +367,70 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: spacing.xs,
-    paddingHorizontal: spacing.md,
-    paddingTop: spacing.xs,
-    paddingBottom: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingTop: 6,
+    paddingBottom: 6,
     backgroundColor: colors.card,
     borderBottomWidth: 1,
     borderBottomColor: colors.hairline,
   },
   topAvatar: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    overflow: 'hidden',
-    backgroundColor: colors.brandSoft,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: colors.ink,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.brandSoft,
   },
-  topAvatarImage: { width: '100%', height: '100%' },
+  topAvatarText: { color: colors.textOnAccent, fontSize: 14, fontWeight: '900' },
   topText: { flex: 1, gap: 1 },
   topName: { ...typography.body, color: colors.ink, fontWeight: '800' },
   topSubtitle: { ...typography.caption, color: colors.muted, fontSize: 10 },
-  bellButton: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
+  statusPill: {
+    height: 24,
+    paddingHorizontal: spacing.xs,
+    borderRadius: radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
+    flexDirection: 'row',
+    gap: 5,
     backgroundColor: colors.cardMuted,
   },
-  bellDot: {
-    position: 'absolute',
-    right: 7,
-    top: 7,
+  statusDot: {
     width: 7,
     height: 7,
     borderRadius: 4,
-    backgroundColor: colors.danger,
-    borderWidth: 1,
-    borderColor: colors.card,
+    backgroundColor: colors.success,
   },
+  statusText: { ...typography.caption, color: colors.brandDark, fontSize: 9, fontWeight: '800' },
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: spacing.sm,
+    marginBottom: spacing.xs,
   },
   sectionTitle: { ...typography.section, color: colors.ink },
-  sectionAction: { ...typography.body, color: colors.brand, fontWeight: '700' },
+  sectionAction: { ...typography.caption, color: colors.brand, fontWeight: '800' },
   progressTrack: { width: '100%', overflow: 'hidden' },
   progressFill: {},
   avatar: { alignItems: 'center', justifyContent: 'center' },
   avatarLabel: { color: colors.textOnAccent, fontWeight: '800' },
   iconBadge: { alignItems: 'center', justifyContent: 'center' },
-  timelineRow: { flexDirection: 'row', gap: spacing.md },
-  timelineMarkerCol: { alignItems: 'center', width: 32 },
+  timelineRow: { flexDirection: 'row', gap: spacing.sm },
+  timelineMarkerCol: { alignItems: 'center', width: 30 },
   timelineDot: {
-    width: 32,
-    height: 32,
+    width: 28,
+    height: 28,
     borderRadius: radius.pill,
     backgroundColor: colors.brand,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  timelineDotLabel: { ...typography.body, color: colors.textOnAccent, fontWeight: '800' },
-  timelineLine: { flex: 1, width: 2, backgroundColor: colors.hairline, marginVertical: spacing.xxs, minHeight: 24 },
-  timelineContent: { flex: 1, paddingBottom: spacing.lg, gap: spacing.xxs },
-  timelineTitle: { ...typography.section, color: colors.ink },
-  timelineDescription: { ...typography.body, color: colors.muted },
+  timelineDotLabel: { ...typography.caption, color: colors.textOnAccent, fontWeight: '900' },
+  timelineLine: { flex: 1, width: 2, backgroundColor: colors.hairline, marginVertical: spacing.xxs, minHeight: 20 },
+  timelineContent: { flex: 1, paddingBottom: spacing.md, gap: spacing.xxs },
+  timelineTitle: { ...typography.body, color: colors.ink, fontWeight: '800' },
+  timelineDescription: { ...typography.caption, color: colors.muted },
 });

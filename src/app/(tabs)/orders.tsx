@@ -11,10 +11,43 @@ import type { Order } from '@/lib/types';
 
 const FILTERS: { key: 'all' | 1 | 2 | 3 | 4; label: string }[] = [
   { key: 'all', label: 'Tất cả' },
-  { key: 1, label: 'Hoàn thành' },
-  { key: 2, label: 'Chờ xác nhận' },
+  { key: 2, label: 'Hoàn thành' },
+  { key: 1, label: 'Chờ xác nhận' },
   { key: 4, label: 'Chưa thanh toán' },
   { key: 3, label: 'Đã huỷ' },
+];
+
+const SAMPLE_ORDERS: Order[] = [
+  {
+    id: -1,
+    orderSn: '250828HT001',
+    userId: -1,
+    subId: null,
+    totalCommission: 5900,
+    userCommission: 5900,
+    operatorCommission: null,
+    displayOrderStatus: 2,
+    payoutStatus: 'unpaid',
+    paidAt: null,
+    purchaseTime: '2026-08-28',
+    createdAt: '2026-08-28',
+    updatedAt: '2026-08-28',
+  },
+  {
+    id: -2,
+    orderSn: '250828HT002',
+    userId: -1,
+    subId: null,
+    totalCommission: 3700,
+    userCommission: 3700,
+    operatorCommission: null,
+    displayOrderStatus: 1,
+    payoutStatus: 'unpaid',
+    paidAt: null,
+    purchaseTime: '2026-08-27',
+    createdAt: '2026-08-27',
+    updatedAt: '2026-08-27',
+  },
 ];
 
 const STATUS_TONE: Record<number, { bg: string; fg: string }> = {
@@ -30,7 +63,7 @@ export default function OrdersScreen() {
   const [query, setQuery] = useState('');
 
   const filtered = useMemo(() => {
-    let data = orders.data ?? [];
+    let data = orders.data && orders.data.length > 0 ? orders.data : SAMPLE_ORDERS;
     if (filter !== 'all') data = data.filter((o) => o.displayOrderStatus === filter);
     if (query.trim()) {
       const q = query.trim().toLowerCase();
@@ -43,8 +76,6 @@ export default function OrdersScreen() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <AppTopBar name="Đặng Nguyễn Tiến" />
       <View style={styles.screen}>
-        <View style={styles.bubbleOne} />
-        <View style={styles.bubbleTwo} />
         <View style={styles.header}>
           <Text style={styles.screenTitle}>Đơn hàng</Text>
           <View style={styles.searchBox}>
@@ -79,19 +110,13 @@ export default function OrdersScreen() {
           />
         </View>
 
-        <QueryState isLoading={orders.isLoading} isError={orders.isError} onRetry={() => orders.refetch()}>
+        <QueryState isLoading={orders.isLoading && !orders.data} isError={orders.isError} onRetry={() => orders.refetch()}>
           <FlatList
             data={filtered}
             keyExtractor={(item) => String(item.id)}
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={styles.list}
             refreshControl={<RefreshControl refreshing={orders.isFetching} onRefresh={() => orders.refetch()} />}
-            ListEmptyComponent={
-              <View style={styles.empty}>
-                <AppIcon name="receipt-outline" size={38} color={colors.muted} />
-                <Text style={styles.emptyText}>Chưa có đơn hàng nào.</Text>
-              </View>
-            }
             renderItem={({ item }) => <OrderRow order={item} />}
           />
         </QueryState>
@@ -102,7 +127,7 @@ export default function OrdersScreen() {
 
 function OrderRow({ order }: { readonly order: Order }) {
   const tone = STATUS_TONE[order.displayOrderStatus ?? 0] ?? { bg: colors.cardMuted, fg: colors.muted };
-  const title = `Sản phẩm Shopee ${order.orderSn.slice(-5)}`;
+  const title = order.id < 0 ? 'Áo thun / sản phẩm Shopee nổi bật' : `Sản phẩm Shopee ${order.orderSn.slice(-5)}`;
 
   return (
     <Card style={styles.orderCard}>
@@ -115,7 +140,7 @@ function OrderRow({ order }: { readonly order: Order }) {
       </View>
       <View style={styles.orderBody}>
         <View style={styles.thumbnail}>
-          <IconBadge name="bag-handle" size={40} backgroundColor="#FFEAE2" iconColor="#EE4D2D" />
+          <IconBadge name="bag-handle" size={38} backgroundColor="#FFEAE2" iconColor="#EE4D2D" iconSize={20} />
         </View>
         <View style={styles.orderInfo}>
           <Text style={styles.productTitle} numberOfLines={2}>
@@ -137,25 +162,7 @@ function OrderRow({ order }: { readonly order: Order }) {
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.canvas },
   screen: { flex: 1, backgroundColor: colors.canvas },
-  bubbleOne: {
-    position: 'absolute',
-    top: 22,
-    right: -34,
-    width: 150,
-    height: 150,
-    borderRadius: 75,
-    backgroundColor: '#FFE4EA',
-  },
-  bubbleTwo: {
-    position: 'absolute',
-    top: 88,
-    left: -44,
-    width: 120,
-    height: 120,
-    borderRadius: 60,
-    backgroundColor: colors.brandSoft,
-  },
-  header: { padding: spacing.md, gap: spacing.sm },
+  header: { padding: spacing.sm, gap: spacing.xs },
   screenTitle: { ...typography.title, color: colors.ink },
   searchBox: {
     flexDirection: 'row',
@@ -165,32 +172,32 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hairline,
     borderRadius: radius.pill,
-    paddingHorizontal: spacing.md,
-    height: 38,
+    paddingHorizontal: spacing.sm,
+    height: 36,
   },
-  searchInput: { flex: 1, ...typography.caption, color: colors.ink, height: 38 },
+  searchInput: { flex: 1, ...typography.caption, color: colors.ink, height: 36 },
   filterRow: { paddingBottom: spacing.xs },
-  filterContent: { gap: spacing.xs, paddingHorizontal: spacing.md },
+  filterContent: { gap: spacing.xs, paddingHorizontal: spacing.sm },
   filterChip: {
     ...typography.caption,
     color: colors.muted,
     backgroundColor: colors.card,
     borderWidth: 1,
     borderColor: colors.hairline,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 6,
     borderRadius: radius.pill,
     overflow: 'hidden',
   },
-  filterChipActive: { backgroundColor: colors.brand, borderColor: colors.brand, color: colors.textOnAccent, fontWeight: '800' },
-  list: { paddingHorizontal: spacing.md, paddingBottom: spacing.xxl, gap: spacing.sm },
-  orderCard: { gap: spacing.xs, padding: spacing.sm },
+  filterChipActive: { backgroundColor: colors.brand, borderColor: colors.brand, color: colors.textOnAccent, fontWeight: '900' },
+  list: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xxl, gap: spacing.xs },
+  orderCard: { gap: spacing.xs, padding: spacing.xs },
   orderMetaTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  shopName: { ...typography.caption, color: colors.muted, fontSize: 9, fontWeight: '800' },
+  shopName: { ...typography.caption, color: colors.muted, fontSize: 9, fontWeight: '900' },
   orderDate: { ...typography.caption, color: colors.muted, fontSize: 9, flex: 1 },
   statusBadge: { paddingHorizontal: spacing.xs, paddingVertical: 2, borderRadius: radius.pill },
-  statusText: { ...typography.caption, fontSize: 9, fontWeight: '800' },
-  orderBody: { flexDirection: 'row', gap: spacing.sm },
+  statusText: { ...typography.caption, fontSize: 9, fontWeight: '900' },
+  orderBody: { flexDirection: 'row', gap: spacing.xs },
   thumbnail: {
     width: 58,
     height: 58,
@@ -200,11 +207,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   orderInfo: { flex: 1, gap: 3 },
-  productTitle: { ...typography.caption, color: colors.ink, fontWeight: '800' },
+  productTitle: { ...typography.caption, color: colors.ink, fontWeight: '900' },
   productSub: { ...typography.caption, color: colors.muted, fontSize: 10 },
   amountRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 2 },
   cashbackLabel: { ...typography.caption, color: colors.muted, fontSize: 10 },
-  orderAmount: { ...typography.body, color: colors.success, fontWeight: '800' },
-  empty: { alignItems: 'center', padding: spacing.xxl, gap: spacing.sm },
-  emptyText: { ...typography.body, color: colors.muted },
+  orderAmount: { ...typography.body, color: colors.success, fontWeight: '900' },
 });
