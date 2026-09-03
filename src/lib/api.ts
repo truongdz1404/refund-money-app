@@ -1,6 +1,7 @@
 import { getAuthToken, signOut } from '@/lib/authStore';
 
-const BASE_URL = 'https://refundmoney.tro247.online/app';
+// Override for local/staging testing via `.env`: EXPO_PUBLIC_API_URL=https://staging.example.com/app
+const BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'https://refundmoney.tro247.online/app';
 
 export class ApiError extends Error {
   status: number;
@@ -10,6 +11,8 @@ export class ApiError extends Error {
   }
 }
 
+const REQUEST_TIMEOUT_MS = 15000;
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
   const headers: Record<string, string> = {
@@ -18,7 +21,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   };
   if (token) headers.authorization = `Bearer ${token}`;
 
-  const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, { ...options, headers, signal: controller.signal });
+  } catch {
+    if (controller.signal.aborted) {
+      throw new ApiError(0, 'Kết nối quá chậm, vui lòng thử lại.');
+    }
+    throw new ApiError(0, 'Không thể kết nối máy chủ, kiểm tra lại mạng.');
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   let body: unknown = null;
   const text = await res.text();
@@ -47,7 +63,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 export const api = {
   get: <T>(path: string) => request<T>(path, { method: 'GET' }),
   post: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: 'POST', body: body ? JSON.stringify(body) : undefined }),
+    request<T>(path, { method: 'POST', body: body !== undefined ? JSON.stringify(body) : undefined }),
   put: <T>(path: string, body?: unknown) =>
-    request<T>(path, { method: 'PUT', body: body ? JSON.stringify(body) : undefined }),
+    request<T>(path, { method: 'PUT', body: body !== undefined ? JSON.stringify(body) : undefined }),
 };

@@ -25,6 +25,7 @@ export default function CampaignsScreen() {
   const data = useMemo(() => {
     const source = campaigns.data ?? [];
     if (filter === 'reward') return source.filter((item) => item.rewardsEarned.length > 0);
+    if (filter === 'active') return source.filter((item) => Boolean(item.isActive));
     return source;
   }, [campaigns.data, filter]);
 

@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import type { ComponentProps } from 'react';
 import {
   ActivityIndicator,
@@ -10,8 +11,6 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import Svg, { Circle, Path } from 'react-native-svg';
-
 import { colors, radius, spacing, typography } from '@/design/tokens';
 
 export type AppIconName = ComponentProps<typeof Ionicons>['name'];
@@ -149,20 +148,11 @@ export function AppTopBar({
 
 export function Mascot({ size = 58 }: { readonly size?: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 64 64">
-      <Path
-        d="M32 5C20 15 11 29 11 41c0 10 8 18 21 18s21-8 21-18C53 29 44 15 32 5Z"
-        fill="#F8FFDE"
-        stroke={colors.success}
-        strokeWidth="2.5"
-      />
-      <Path d="M32 15C24 23 18 33 18 41c0 7 5 12 14 12s14-5 14-12c0-8-6-18-14-26Z" fill={colors.brandSoft} />
-      <Circle cx="24" cy="37" r="2.3" fill={colors.ink} />
-      <Circle cx="40" cy="37" r="2.3" fill={colors.ink} />
-      <Path d="M28 44c2.5 2 5.5 2 8 0" stroke={colors.danger} strokeWidth="2" strokeLinecap="round" fill="none" />
-      <Path d="M17 19 10 13M48 19l6-7M18 27l-8-2M47 27l8-2" stroke={colors.danger} strokeWidth="2" strokeLinecap="round" />
-      <Circle cx="32" cy="41" r="6" fill="#FFE9B6" stroke="#F8B84E" strokeWidth="1.5" />
-    </Svg>
+    <Image
+      source={require('../../assets/rewally-mascot.png')}
+      style={{ width: size, height: size }}
+      contentFit="contain"
+    />
   );
 }
 

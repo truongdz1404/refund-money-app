@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { FlatList, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, FlatList, RefreshControl, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QueryState } from '@/components/QueryState';
@@ -85,8 +85,17 @@ export default function OrdersScreen() {
             keyExtractor={(item) => String(item.id)}
             contentInsetAdjustmentBehavior="automatic"
             contentContainerStyle={styles.list}
-            refreshControl={<RefreshControl refreshing={orders.isFetching} onRefresh={() => orders.refetch()} />}
+            refreshControl={<RefreshControl refreshing={orders.isRefetching} onRefresh={() => orders.refetch()} />}
             renderItem={({ item }) => <OrderRow order={item} />}
+            onEndReachedThreshold={0.4}
+            onEndReached={() => {
+              if (orders.hasNextPage && !orders.isFetchingNextPage) orders.fetchNextPage();
+            }}
+            ListFooterComponent={
+              orders.isFetchingNextPage ? (
+                <ActivityIndicator style={styles.footerSpinner} color={colors.brand} />
+              ) : null
+            }
             ListEmptyComponent={
               <View style={styles.emptyState}>
                 <IconBadge name="bag-handle" size={48} backgroundColor={colors.brandSoft} iconColor={colors.brand} iconSize={24} />
@@ -103,7 +112,7 @@ export default function OrdersScreen() {
 
 function OrderRow({ order }: { readonly order: Order }) {
   const tone = STATUS_TONE[order.displayOrderStatus ?? 0] ?? { bg: colors.cardMuted, fg: colors.muted };
-  const title = `Sản phẩm Shopee ${order.orderSn.slice(-5)}`;
+  const title = order.productName?.trim() || 'Đơn hàng Shopee';
 
   return (
     <Card style={styles.orderCard}>
@@ -167,6 +176,7 @@ const styles = StyleSheet.create({
   },
   filterChipActive: { backgroundColor: colors.brand, borderColor: colors.brand, color: colors.textOnAccent, fontWeight: '900' },
   list: { paddingHorizontal: spacing.sm, paddingBottom: spacing.xxl, gap: spacing.xs },
+  footerSpinner: { paddingVertical: spacing.sm },
   orderCard: { gap: spacing.xs, padding: spacing.xs },
   orderMetaTop: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   shopName: { ...typography.caption, color: colors.muted, fontSize: 9, fontWeight: '900' },

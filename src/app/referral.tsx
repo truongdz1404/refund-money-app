@@ -73,6 +73,7 @@ export default function ReferralScreen() {
                   <Text style={styles.statLabel}>Tổng thưởng</Text>
                 </Card>
               </View>
+              <Text style={styles.rewardNote}>Số tiền này đã được cộng vào số dư ví của bạn.</Text>
 
               <Text style={styles.sectionTitle}>Danh sách bạn đã mời</Text>
             </View>
@@ -110,6 +111,7 @@ const styles = StyleSheet.create({
   statCard: { flex: 1, alignItems: 'center', gap: spacing.xxs },
   statValue: { ...typography.section, color: colors.ink },
   statLabel: { ...typography.caption, color: colors.muted },
+  rewardNote: { ...typography.caption, color: colors.muted, textAlign: 'center', marginTop: -spacing.xs },
   sectionTitle: { ...typography.section, color: colors.ink },
   inviteeCard: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   inviteeText: { gap: 2 },

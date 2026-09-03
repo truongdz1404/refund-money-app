@@ -51,9 +51,10 @@ export type Order = {
   userCommission: number | null;
   operatorCommission: number | null;
   displayOrderStatus: 1 | 2 | 3 | 4 | null;
-  payoutStatus: 'paid' | 'unpaid';
+  payoutStatus: 'paid' | 'unpaid' | 'cancelled';
   paidAt: string | null;
   purchaseTime: string | null;
+  productName: string | null;
   createdAt: string;
   updatedAt: string;
 };

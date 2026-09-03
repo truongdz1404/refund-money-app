@@ -163,6 +163,14 @@ export default function LinkScreen() {
               {displayHistory.map((item) => (
                 <HistoryRow key={item.id} item={item} />
               ))}
+              {history.hasNextPage && (
+                <AppButton
+                  label="Xem thêm"
+                  variant="secondary"
+                  loading={history.isFetchingNextPage}
+                  onPress={() => history.fetchNextPage()}
+                />
+              )}
             </View>
           )}
         </QueryState>

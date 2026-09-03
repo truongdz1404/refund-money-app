@@ -18,6 +18,7 @@ export default function ProfileScreen() {
   const [bankName, setBankName] = useState('');
   const [bankAccountNumber, setBankAccountNumber] = useState('');
   const [bankAccountHolder, setBankAccountHolder] = useState('');
+  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [hydratedUserId, setHydratedUserId] = useState<number | null>(null);
@@ -41,6 +42,10 @@ export default function ProfileScreen() {
   }
 
   function handleChangePassword() {
+    if (!currentPassword) {
+      Alert.alert('Thiếu mật khẩu hiện tại', 'Vui lòng nhập mật khẩu hiện tại.');
+      return;
+    }
     if (newPassword.length < 6) {
       Alert.alert('Mật khẩu quá ngắn', 'Mật khẩu cần ít nhất 6 ký tự.');
       return;
@@ -50,9 +55,10 @@ export default function ProfileScreen() {
       return;
     }
     changePassword.mutate(
-      { newPassword },
+      { currentPassword, newPassword },
       {
         onSuccess: () => {
+          setCurrentPassword('');
           setNewPassword('');
           setConfirmPassword('');
           Alert.alert('Thành công', 'Mật khẩu đã được đổi.');
@@ -102,6 +108,12 @@ export default function ProfileScreen() {
 
           <Text style={styles.sectionTitle}>Đổi mật khẩu</Text>
           <Card style={styles.card}>
+            <TextField
+              label="Mật khẩu hiện tại"
+              value={currentPassword}
+              onChangeText={setCurrentPassword}
+              secureTextEntry
+            />
             <TextField
               label="Mật khẩu mới"
               value={newPassword}

@@ -32,11 +32,11 @@ export default function HomeScreen() {
   const isLoading = me.isLoading || wallet.isLoading;
   const isError = me.isError || wallet.isError;
   const refreshing = me.isFetching || wallet.isFetching || campaigns.isFetching;
-  const activeCampaign = campaigns.data?.find((c) => c.isActive) ?? campaigns.data?.[0];
+  const activeCampaign = campaigns.data?.find((c) => c.isActive);
   const nextTier = activeCampaign
     ? [...activeCampaign.tiers].sort((a, b) => a.orders - b.orders).find((t) => t.orders > activeCampaign.completedOrders)
     : undefined;
-  const progress = activeCampaign && nextTier ? activeCampaign.completedOrders / nextTier.orders : 0.35;
+  const progress = activeCampaign && nextTier ? activeCampaign.completedOrders / nextTier.orders : 0;
   const statValues = [
     formatVnd(wallet.data?.paidAmount),
     formatVnd(wallet.data?.pendingAmount),
@@ -108,24 +108,38 @@ export default function HomeScreen() {
             <Text style={styles.walletAmount}>{formatVnd(wallet.data?.availableAmount)}</Text>
           </Card>
 
-          <Card style={styles.campaignCard}>
-            <View style={styles.campaignTop}>
-              <View style={styles.campaignIcon}>
-                <AppIcon name="gift-outline" size={17} color={colors.brand} />
+          {activeCampaign ? (
+            <Card style={styles.campaignCard}>
+              <View style={styles.campaignTop}>
+                <View style={styles.campaignIcon}>
+                  <AppIcon name="gift-outline" size={17} color={colors.brand} />
+                </View>
+                <View style={styles.campaignText}>
+                  <Text style={styles.campaignTitle}>{activeCampaign.title}</Text>
+                  <Text style={styles.campaignSub}>Sự kiện đang diễn ra</Text>
+                </View>
+                <Text style={styles.campaignPct}>{Math.round(progress * 100)}%</Text>
               </View>
-              <View style={styles.campaignText}>
-                <Text style={styles.campaignTitle}>{activeCampaign?.title ?? 'Sự kiện tháng 8'}</Text>
-                <Text style={styles.campaignSub}>Sự kiện đang diễn ra</Text>
+              <ProgressBar progress={progress} height={6} fillColor={colors.success} />
+              <Text style={styles.progressHint}>
+                {nextTier
+                  ? `Còn ${Math.max(nextTier.orders - activeCampaign.completedOrders, 0)} đơn để nhận ${formatVnd(nextTier.reward)}`
+                  : 'Tạo thêm đơn để mở khóa thưởng sự kiện'}
+              </Text>
+            </Card>
+          ) : (
+            <Card style={styles.campaignCard}>
+              <View style={styles.campaignTop}>
+                <View style={styles.campaignIcon}>
+                  <AppIcon name="gift-outline" size={17} color={colors.muted} />
+                </View>
+                <View style={styles.campaignText}>
+                  <Text style={styles.campaignTitle}>Chưa có sự kiện nào</Text>
+                  <Text style={styles.campaignSub}>Quay lại sau khi có sự kiện hoàn tiền mới nhé</Text>
+                </View>
               </View>
-              <Text style={styles.campaignPct}>{Math.round(progress * 100)}%</Text>
-            </View>
-            <ProgressBar progress={progress} height={6} fillColor={colors.success} />
-            <Text style={styles.progressHint}>
-              {nextTier
-                ? `Còn ${Math.max(nextTier.orders - (activeCampaign?.completedOrders ?? 0), 0)} đơn để nhận ${formatVnd(nextTier.reward)}`
-                : 'Tạo thêm đơn để mở khóa thưởng sự kiện'}
-            </Text>
-          </Card>
+            </Card>
+          )}
         </QueryState>
       </ScrollView>
     </SafeAreaView>

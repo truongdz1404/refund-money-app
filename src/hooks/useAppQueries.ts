@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { api } from '@/lib/api';
 import { setCurrentUser } from '@/lib/authStore';
@@ -37,10 +37,36 @@ export function useWallet() {
   });
 }
 
+const ORDERS_PAGE_SIZE = 30;
+const LINKS_PAGE_SIZE = 20;
+
+// Some backends silently ignore `offset` and keep returning the first page.
+// If a fetched page brings no id we haven't already seen, treat it as the end
+// instead of paginating forever.
+function dedupeById<T extends { id: number | string }>(items: T[]): T[] {
+  const seen = new Set<T['id']>();
+  const result: T[] = [];
+  for (const item of items) {
+    if (!seen.has(item.id)) {
+      seen.add(item.id);
+      result.push(item);
+    }
+  }
+  return result;
+}
+
 export function useOrders() {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['orders'],
-    queryFn: () => api.get<Order[]>('/orders?limit=100'),
+    queryFn: ({ pageParam }) => api.get<Order[]>(`/orders?limit=${ORDERS_PAGE_SIZE}&offset=${pageParam}`),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < ORDERS_PAGE_SIZE) return undefined;
+      const priorIds = new Set(allPages.slice(0, -1).flat().map((o) => o.id));
+      if (!lastPage.some((o) => !priorIds.has(o.id))) return undefined;
+      return allPages.flat().length;
+    },
+    select: (data) => dedupeById(data.pages.flat()),
   });
 }
 
@@ -70,9 +96,17 @@ export function useCreateLink() {
 }
 
 export function useLinkHistory() {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['links'],
-    queryFn: () => api.get<LinkHistoryItem[]>('/links?limit=20'),
+    queryFn: ({ pageParam }) => api.get<LinkHistoryItem[]>(`/links?limit=${LINKS_PAGE_SIZE}&offset=${pageParam}`),
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) => {
+      if (lastPage.length < LINKS_PAGE_SIZE) return undefined;
+      const priorIds = new Set(allPages.slice(0, -1).flat().map((l) => l.id));
+      if (!lastPage.some((l) => !priorIds.has(l.id))) return undefined;
+      return allPages.flat().length;
+    },
+    select: (data) => dedupeById(data.pages.flat()),
   });
 }
 
@@ -92,18 +126,27 @@ export function useUpdateProfile() {
   });
 }
 
+export function useWithdrawals() {
+  return useQuery({
+    queryKey: ['withdrawals'],
+    queryFn: () => api.get<WithdrawalRequest[]>('/wallet/withdrawals'),
+  });
+}
+
 export function useWithdraw() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: { amount: number }) => api.post<WithdrawalRequest>('/wallet/withdraw', input),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['wallet'] });
+      queryClient.invalidateQueries({ queryKey: ['withdrawals'] });
     },
   });
 }
 
 export function useChangePassword() {
   return useMutation({
-    mutationFn: (input: { newPassword: string }) => api.put<{ ok: true }>('/password', input),
+    mutationFn: (input: { currentPassword: string; newPassword: string }) =>
+      api.put<{ ok: true }>('/password', input),
   });
 }

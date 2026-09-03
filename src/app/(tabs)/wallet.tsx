@@ -1,15 +1,15 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Alert, Pressable, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Alert, RefreshControl, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { QueryState } from '@/components/QueryState';
 import { TextField } from '@/components/TextField';
 import { AppButton, AppIcon, AppTopBar, Card, IconBadge, Mascot } from '@/design/components';
 import { colors, radius, spacing, typography } from '@/design/tokens';
-import { useMe, useWallet, useWithdraw } from '@/hooks/useAppQueries';
+import { useMe, useWallet, useWithdraw, useWithdrawals } from '@/hooks/useAppQueries';
 import { getDisplayName } from '@/lib/displayName';
-import { formatVnd } from '@/lib/format';
+import { formatDateTime, formatVnd } from '@/lib/format';
 
 const STATUS_LABEL: Record<string, string> = {
   pending: 'Đang chờ duyệt',
@@ -18,11 +18,19 @@ const STATUS_LABEL: Record<string, string> = {
   paid: 'Đã thanh toán',
 };
 
+const HISTORY_STATUS_STYLE: Record<string, { color: string }> = {
+  pending: { color: '#9A6B00' },
+  approved: { color: colors.brand },
+  rejected: { color: colors.danger },
+  paid: { color: colors.success },
+};
+
 export default function WalletScreen() {
   const router = useRouter();
   const me = useMe();
   const wallet = useWallet();
   const withdraw = useWithdraw();
+  const withdrawals = useWithdrawals();
   const [amount, setAmount] = useState('');
 
   const missingBankInfo = me.data && (!me.data.bankName || !me.data.bankAccountNumber || !me.data.bankAccountHolder);
@@ -39,10 +47,10 @@ export default function WalletScreen() {
   function refetchAll() {
     me.refetch();
     wallet.refetch();
+    withdrawals.refetch();
   }
 
-  function handleSubmit() {
-    if (!canSubmit) return;
+  function submitWithdraw() {
     withdraw.mutate(
       { amount: amountNumber },
       {
@@ -54,6 +62,18 @@ export default function WalletScreen() {
           Alert.alert('Không tạo được yêu cầu', err instanceof Error ? err.message : 'Vui lòng thử lại.');
         },
       },
+    );
+  }
+
+  function handleSubmit() {
+    if (!canSubmit) return;
+    Alert.alert(
+      'Xác nhận thanh toán',
+      `Rút ${formatVnd(amountNumber)} về ${me.data?.bankName ?? 'ngân hàng'} · ${me.data?.bankAccountNumber ?? ''} (${me.data?.bankAccountHolder ?? ''})?`,
+      [
+        { text: 'Huỷ', style: 'cancel' },
+        { text: 'Xác nhận', onPress: submitWithdraw },
+      ],
     );
   }
 
@@ -108,13 +128,6 @@ export default function WalletScreen() {
                   <AppIcon name="card" size={18} color={colors.brand} />
                   <Text style={styles.methodText}>Ngân hàng</Text>
                 </View>
-                <Pressable
-                  style={styles.methodOption}
-                  onPress={() => Alert.alert('Sắp ra mắt', 'Nhận tiền qua Momo sẽ được hỗ trợ trong bản cập nhật sau.')}
-                >
-                  <AppIcon name="wallet-outline" size={18} color={colors.textMuted} />
-                  <Text style={styles.methodMuted}>Momo</Text>
-                </Pressable>
               </View>
             </View>
 
@@ -154,6 +167,25 @@ export default function WalletScreen() {
               loading={withdraw.isPending}
               disabled={!canSubmit}
             />
+          </Card>
+
+          <Card style={styles.formCard}>
+            <Text style={styles.sectionTitle}>Lịch sử rút tiền</Text>
+            {(withdrawals.data ?? []).length === 0 ? (
+              <Text style={styles.hintText}>Chưa có yêu cầu rút tiền nào.</Text>
+            ) : (
+              (withdrawals.data ?? []).map((item) => (
+                <View key={item.id} style={styles.historyRow}>
+                  <View style={{ flex: 1, gap: 2 }}>
+                    <Text style={styles.bankName}>{formatVnd(item.amount)}</Text>
+                    <Text style={styles.hintText}>{formatDateTime(item.createdAt)}</Text>
+                  </View>
+                  <Text style={[styles.historyStatus, HISTORY_STATUS_STYLE[item.status]]}>
+                    {STATUS_LABEL[item.status] ?? item.status}
+                  </Text>
+                </View>
+              ))
+            )}
           </Card>
         </QueryState>
       </ScrollView>
@@ -256,4 +288,13 @@ const styles = StyleSheet.create({
   pendingBox: { borderRadius: radius.md, padding: spacing.sm, backgroundColor: '#FFF7D6', gap: 2 },
   pendingTitle: { ...typography.caption, color: '#9A6B00', fontWeight: '800' },
   pendingDesc: { ...typography.caption, color: colors.muted },
+  historyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.xs,
+    borderTopWidth: 1,
+    borderTopColor: colors.hairline,
+  },
+  historyStatus: { ...typography.caption, fontWeight: '800' },
 });

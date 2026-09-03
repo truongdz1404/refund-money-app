@@ -13,8 +13,17 @@ function publish() {
   for (const listener of listeners) listener();
 }
 
+const READ_TOKEN_TIMEOUT_MS = 5000;
+
 export async function initAuth(): Promise<void> {
-  const token = await readToken();
+  // readToken() goes through a native SecureStore/Keystore call that has been
+  // observed to hang indefinitely on some Android emulator images, which would
+  // otherwise leave `token` stuck at `undefined` and the app stuck on a blank
+  // splash forever. Fall back to logged-out rather than hang the whole app.
+  const token = await Promise.race([
+    readToken(),
+    new Promise<null>((resolve) => setTimeout(() => resolve(null), READ_TOKEN_TIMEOUT_MS)),
+  ]);
   snapshot = { token, user: null };
   publish();
 }
